@@ -87,11 +87,11 @@ By default the requested scope is "public_profile". Scope can be configured eith
 ```elixir
 config :ueberauth, Ueberauth,
   providers: [
-    Strava: {Ueberauth.Strategy.Strava, [default_scope: "email,public_profile,user_friends"]}
+    Strava: {Ueberauth.Strategy.Strava, [default_scope: "email,public_profile,athlete_friends"]}
   ]
 ```
 
-Starting with Graph API version 2.4, Strava has limited the default fields returned when fetching the user profile.
+Starting with Graph API version 2.4, Strava has limited the default fields returned when fetching the athlete profile.
 Fields can be explicitly requested using the `profile_fields` option:
 
 ```elixir
@@ -101,7 +101,7 @@ config :ueberauth, Ueberauth,
   ]
 ```
 
-See [Graph API Reference > User](https://developers.Strava.com/docs/graph-api/reference/user) for full list of fields.
+See [Graph API Reference > User](https://developers.Strava.com/docs/graph-api/reference/athlete) for full list of fields.
 
 
 ## License

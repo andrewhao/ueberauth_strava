@@ -12,9 +12,9 @@ defmodule Ueberauth.Strategy.Strava.OAuth do
 
   @defaults [
     strategy: __MODULE__,
-    site: "https://graph.Strava.com",
-    authorize_url: "https://www.Strava.com/dialog/oauth",
-    token_url: "/oauth/access_token",
+    site: "https://www.strava.com/",
+    authorize_url: "https://www.strava.com/oauth/authorize",
+    token_url: "https://www.strava.com/oauth/token",
   ]
 
   @doc """

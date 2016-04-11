@@ -3,15 +3,8 @@ defmodule Ueberauth.Strategy.Strava do
   Strava Strategy for Überauth.
   """
 
-  use Ueberauth.Strategy, default_scope: "email",
-                          profile_fields: "",
-                          uid_field: :id,
-                          allowed_request_params: [
-                            :auth_type,
-                            :scope,
-                            :locale
-                          ]
-
+  use Ueberauth.Strategy, default_scope: "public",
+                          uid_field: :id
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
   alias Ueberauth.Auth.Extra
@@ -20,14 +13,9 @@ defmodule Ueberauth.Strategy.Strava do
   Handles initial request for Strava authentication.
   """
   def handle_request!(conn) do
-    allowed_params = conn
-     |> option(:allowed_request_params)
-     |> Enum.map(&to_string/1)
 
     authorize_url = conn.params
-      |> maybe_replace_param(conn, "auth_type", :auth_type)
       |> maybe_replace_param(conn, "scope", :default_scope)
-      |> Enum.filter(fn {k,_v} -> Enum.member?(allowed_params, k) end)
       |> Enum.map(fn {k,v} -> {String.to_existing_atom(k), v} end)
       |> Keyword.put(:redirect_uri, callback_url(conn))
       |> Ueberauth.Strategy.Strava.OAuth.authorize_url!
@@ -47,7 +35,7 @@ defmodule Ueberauth.Strategy.Strava do
       desc = token.other_params["error_description"]
       set_errors!(conn, [error(err, desc)])
     else
-      fetch_user(conn, token)
+      fetch_athlete(conn, token)
     end
   end
 
@@ -59,8 +47,8 @@ defmodule Ueberauth.Strategy.Strava do
   @doc false
   def handle_cleanup!(conn) do
     conn
-    |> put_private(:Strava_user, nil)
-    |> put_private(:Strava_token, nil)
+    |> put_private(:strava_athlete, nil)
+    |> put_private(:strava_token, nil)
   end
 
   @doc """
@@ -72,14 +60,14 @@ defmodule Ueberauth.Strategy.Strava do
       |> option(:uid_field)
       |> to_string
 
-    conn.private.Strava_user[uid_field]
+    conn.private.strava_athlete[uid_field]
   end
 
   @doc """
   Includes the credentials from the Strava response.
   """
   def credentials(conn) do
-    token = conn.private.Strava_token
+    token = conn.private.strava_token
     scopes = token.other_params["scope"] || ""
     scopes = String.split(scopes, ",")
 
@@ -96,18 +84,18 @@ defmodule Ueberauth.Strategy.Strava do
   `Ueberauth.Auth` struct.
   """
   def info(conn) do
-    user = conn.private.Strava_user
+    athlete = conn.private.strava_athlete
 
     %Info{
-      description: user["bio"],
-      email: user["email"],
-      first_name: user["first_name"],
-      image: fetch_image(user["id"]),
-      last_name: user["last_name"],
-      name: user["name"],
+      description: athlete["bio"],
+      email: athlete["email"],
+      first_name: athlete["first_name"],
+      image: fetch_image(athlete["id"]),
+      last_name: athlete["last_name"],
+      name: athlete["name"],
       urls: %{
-        Strava: user["link"],
-        website: user["website"]
+        Strava: athlete["link"],
+        website: athlete["website"]
       }
     }
   end
@@ -119,8 +107,8 @@ defmodule Ueberauth.Strategy.Strava do
   def extra(conn) do
     %Extra{
       raw_info: %{
-        token: conn.private.Strava_token,
-        user: conn.private.Strava_user
+        token: conn.private.strava_token,
+        athlete: conn.private.strava_athlete
       }
     }
   end
@@ -129,22 +117,22 @@ defmodule Ueberauth.Strategy.Strava do
     "http://graph.Strava.com/#{uid}/picture?type=square"
   end
 
-  defp fetch_user(conn, token) do
-    conn = put_private(conn, :Strava_token, token)
-    query = user_query(conn)
+  defp fetch_athlete(conn, token) do
+    conn = put_private(conn, :strava_token, token)
+    query = athlete_query(conn)
     path = "/me?#{query}"
     case OAuth2.AccessToken.get(token, path) do
       {:ok, %OAuth2.Response{status_code: 401, body: _body}} ->
         set_errors!(conn, [error("token", "unauthorized")])
-      {:ok, %OAuth2.Response{status_code: status_code, body: user}}
+      {:ok, %OAuth2.Response{status_code: status_code, body: athlete}}
         when status_code in 200..399 ->
-        put_private(conn, :Strava_user, user)
+        put_private(conn, :strava_athlete, athlete)
       {:error, %OAuth2.Error{reason: reason}} ->
         set_errors!(conn, [error("OAuth2", reason)])
     end
   end
 
-  defp user_query(conn) do
+  defp athlete_query(conn) do
     conn
     |> query_params(:locale)
     |> Map.merge(query_params(conn, :profile))
