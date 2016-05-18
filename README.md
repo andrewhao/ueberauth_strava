@@ -1,8 +1,8 @@
 # Überauth Strava
 [![Build Status][travis-img]][travis] [![Hex Version][hex-img]][hex] [![License][license-img]][license]
 
-[travis-img]: https://travis-ci.org/ueberauth/ueberauth_strava.png?branch=master
-[travis]: https://travis-ci.org/ueberauth/ueberauth_strava
+[travis-img]: https://travis-ci.org/andrewhao/ueberauth_strava.png?branch=master
+[travis]: https://travis-ci.org/andrewhao/ueberauth_strava
 [hex-img]: https://img.shields.io/hexpm/v/ueberauth_strava.svg
 [hex]: https://hex.pm/packages/ueberauth_strava
 [license-img]: http://img.shields.io/badge/license-MIT-brightgreen.svg
@@ -12,13 +12,13 @@
 
 ## Installation
 
-1. Setup your application at [Strava Developers](https://developers.Strava.com).
+1. Setup your application at [Strava Developers](https://www.strava.com/settings/api).
 
 1. Add `:ueberauth_strava` to your list of dependencies in `mix.exs`:
 
     ```elixir
     def deps do
-      [{:ueberauth_strava, "~> 0.3"}]
+      [{:ueberauth_strava, "~> 0.1"}]
     end
     ```
 
