@@ -9,7 +9,7 @@ defmodule UeberauthStrava.Mixfile do
      version: @version,
      name: "Ueberauth Strava Strategy",
      package: package,
-     elixir: "~> 1.4",
+     elixir: "~> 1.2",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      source_url: @url,
@@ -45,7 +45,7 @@ defmodule UeberauthStrava.Mixfile do
 
   defp package do
     [files: ["lib", "mix.exs", "README.md", "LICENSE"],
-      maintainers: ["Sean Callan"],
+      maintainers: ["Andrew Hao"],
       licenses: ["MIT"],
       links: %{"GitHub": @url}]
   end
