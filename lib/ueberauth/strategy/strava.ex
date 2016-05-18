@@ -87,16 +87,10 @@ defmodule Ueberauth.Strategy.Strava do
     athlete = conn.private.strava_athlete
 
     %Info{
-      description: athlete["bio"],
+      first_name: athlete["firstname"],
+      last_name: athlete["lastname"],
       email: athlete["email"],
-      first_name: athlete["first_name"],
-      image: fetch_image(athlete["id"]),
-      last_name: athlete["last_name"],
-      name: athlete["name"],
-      urls: %{
-        Strava: athlete["link"],
-        website: athlete["website"]
-      }
+      image: athlete["profile"],
     }
   end
 
@@ -119,8 +113,7 @@ defmodule Ueberauth.Strategy.Strava do
 
   defp fetch_athlete(conn, token) do
     conn = put_private(conn, :strava_token, token)
-    query = athlete_query(conn)
-    path = "/me?#{query}"
+    path = "/api/v3/athlete"
     case OAuth2.AccessToken.get(token, path) do
       {:ok, %OAuth2.Response{status_code: 401, body: _body}} ->
         set_errors!(conn, [error("token", "unauthorized")])
@@ -130,13 +123,6 @@ defmodule Ueberauth.Strategy.Strava do
       {:error, %OAuth2.Error{reason: reason}} ->
         set_errors!(conn, [error("OAuth2", reason)])
     end
-  end
-
-  defp athlete_query(conn) do
-    conn
-    |> query_params(:locale)
-    |> Map.merge(query_params(conn, :profile))
-    |> URI.encode_query
   end
 
   defp query_params(conn, :profile) do

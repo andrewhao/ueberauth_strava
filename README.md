@@ -43,8 +43,8 @@
 
     ```elixir
     config :ueberauth, Ueberauth.Strategy.Strava.OAuth,
-      client_id: System.get_env("Strava_CLIENT_ID"),
-      client_secret: System.get_env("Strava_CLIENT_SECRET")
+      client_id: System.get_env("STRAVA_CLIENT_ID"),
+      client_secret: System.get_env("STRAVA_CLIENT_SECRET")
     ```
 
 1.  Include the Überauth plug in your controller:
@@ -76,35 +76,24 @@ For an example implementation see the [Überauth Example](https://github.com/ueb
 
 Depending on the configured url you can initial the request through:
 
-    /auth/Strava
+    /auth/strava
 
 Or with options:
 
-    /auth/Strava?scope=email,public_profile
+    /auth/strava?scope=view_private,write
 
-By default the requested scope is "public_profile". Scope can be configured either explicitly as a `scope` query value on the request path or in your configuration:
-
-```elixir
-config :ueberauth, Ueberauth,
-  providers: [
-    Strava: {Ueberauth.Strategy.Strava, [default_scope: "email,public_profile,athlete_friends"]}
-  ]
-```
-
-Starting with Graph API version 2.4, Strava has limited the default fields returned when fetching the athlete profile.
-Fields can be explicitly requested using the `profile_fields` option:
+By default the requested scope is "public". Scope can be configured either explicitly as a `scope` query value on the request path or in your configuration:
 
 ```elixir
 config :ueberauth, Ueberauth,
   providers: [
-    Strava: {Ueberauth.Strategy.Strava, [profile_fields: "name,email,first_name,last_name"]}
+    Strava: {Ueberauth.Strategy.Strava, [default_scope: "view_private,write"]}
   ]
 ```
 
-See [Graph API Reference > User](https://developers.Strava.com/docs/graph-api/reference/athlete) for full list of fields.
-
+See [Strava API Access Documentation](http://strava.github.io/api/#access) for full API references.
 
 ## License
 
-Please see [LICENSE](https://github.com/ueberauth/ueberauth_strava/blob/master/LICENSE) for licensing details.
+Please see [LICENSE](https://github.com/andrewhao/ueberauth_strava/blob/master/LICENSE) for licensing details.
 
