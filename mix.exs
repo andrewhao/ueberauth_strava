@@ -1,8 +1,8 @@
 defmodule UeberauthStrava.Mixfile do
   use Mix.Project
 
-  @version "0.1.0"
-  @url "https://github.com/ueberauth/ueberauth_strava"
+  @version "0.1.1"
+  @url "https://github.com/andrewhao/ueberauth_strava"
 
   def project do
     [app: :ueberauth_strava,
