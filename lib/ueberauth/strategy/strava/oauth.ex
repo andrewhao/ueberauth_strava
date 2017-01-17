@@ -54,7 +54,13 @@ defmodule Ueberauth.Strategy.Strava.OAuth do
   def get_token!(params \\ [], opts \\ []) do
     opts
     |> client
-    |> OAuth2.Client.get_token!(params)
+    |> OAuth2.Client.get_token!(token_params(params))
+  end
+
+  def token_params(params \\ []) do
+    Application.get_env(:ueberauth, Ueberauth.Strategy.Strava.OAuth)
+    |> Keyword.take([:client_id, :client_secret])
+    |> Keyword.merge(params)
   end
 
   # Strategy Callbacks
@@ -68,4 +74,5 @@ defmodule Ueberauth.Strategy.Strava.OAuth do
     |> put_header("Accept", "application/json")
     |> OAuth2.Strategy.AuthCode.get_token(params, headers)
   end
+
 end
