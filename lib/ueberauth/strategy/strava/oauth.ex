@@ -45,6 +45,12 @@ defmodule Ueberauth.Strategy.Strava.OAuth do
     |> OAuth2.Client.authorize_url!(params)
   end
 
+  def get(token, url, headers \\ [], opts \\ []) do
+    client([token: token])
+    |> put_param("client_secret", client.client_secret)
+    |> OAuth2.Client.get(url, headers, opts)
+  end
+
   def get_token!(params \\ [], opts \\ []) do
     opts
     |> client
