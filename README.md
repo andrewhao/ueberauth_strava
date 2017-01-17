@@ -35,7 +35,7 @@
     ```elixir
     config :ueberauth, Ueberauth,
       providers: [
-        Strava: {Ueberauth.Strategy.Strava, []}
+        strava: {Ueberauth.Strategy.Strava, []}
       ]
     ```
 
@@ -87,7 +87,7 @@ By default the requested scope is "public". Scope can be configured either expli
 ```elixir
 config :ueberauth, Ueberauth,
   providers: [
-    Strava: {Ueberauth.Strategy.Strava, [default_scope: "view_private,write"]}
+    strava: {Ueberauth.Strategy.Strava, [default_scope: "view_private,write"]}
   ]
 ```
 
