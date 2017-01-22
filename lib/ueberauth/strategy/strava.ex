@@ -4,7 +4,9 @@ defmodule Ueberauth.Strategy.Strava do
   """
 
   use Ueberauth.Strategy, default_scope: "public",
-                          uid_field: :id
+                          uid_field: :id,
+                          oauth2_module: Ueberauth.Strategy.Strava.OAuth
+
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
   alias Ueberauth.Auth.Extra
@@ -13,14 +15,17 @@ defmodule Ueberauth.Strategy.Strava do
   Handles initial request for Strava authentication.
   """
   def handle_request!(conn) do
+    scopes = conn.params["scope"] || option(conn, :default_scope)
+    opts = [redirect_uri: callback_url(conn), scope: scopes]
 
-    authorize_url = conn.params
-      |> maybe_replace_param(conn, "scope", :default_scope)
-      |> Enum.map(fn {k,v} -> {String.to_existing_atom(k), v} end)
-      |> Keyword.put(:redirect_uri, callback_url(conn))
-      |> Ueberauth.Strategy.Strava.OAuth.authorize_url!
+    opts = if conn.params["state"] do 
+             Keyword.put(opts, :state, conn.params["state"])
+           else
+             opts
+           end
 
-    redirect!(conn, authorize_url)
+    module = option(conn, :oauth2_module)
+    redirect!(conn, apply(module, :authorize_url!, [opts]))
   end
 
   @doc """
@@ -28,7 +33,8 @@ defmodule Ueberauth.Strategy.Strava do
   """
   def handle_callback!(%Plug.Conn{params: %{"code" => code}} = conn) do
     opts = [redirect_uri: callback_url(conn)]
-    token = Ueberauth.Strategy.Strava.OAuth.get_token!([code: code], opts)
+    client = Ueberauth.Strategy.Strava.OAuth.get_token!([code: code], opts)
+    token = client.token
 
     if token.access_token == nil do
       err = token.other_params["error"]
@@ -114,7 +120,7 @@ defmodule Ueberauth.Strategy.Strava do
   defp fetch_athlete(conn, token) do
     conn = put_private(conn, :strava_token, token)
     path = "/api/v3/athlete"
-    case OAuth2.AccessToken.get(token, path) do
+    case Ueberauth.Strategy.Strava.OAuth.get(token, path) do
       {:ok, %OAuth2.Response{status_code: 401, body: _body}} ->
         set_errors!(conn, [error("token", "unauthorized")])
       {:ok, %OAuth2.Response{status_code: status_code, body: athlete}}

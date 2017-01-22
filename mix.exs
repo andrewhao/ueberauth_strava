@@ -1,7 +1,7 @@
 defmodule UeberauthStrava.Mixfile do
   use Mix.Project
 
-  @version "0.1.1"
+  @version "0.1.2"
   @url "https://github.com/andrewhao/ueberauth_strava"
 
   def project do
@@ -9,7 +9,7 @@ defmodule UeberauthStrava.Mixfile do
      version: @version,
      name: "Ueberauth Strava Strategy",
      package: package,
-     elixir: "~> 1.2",
+     elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      source_url: @url,
@@ -24,8 +24,8 @@ defmodule UeberauthStrava.Mixfile do
   end
 
   defp deps do
-    [{:ueberauth, "~> 0.2"},
-     {:oauth2, "~> 0.5"},
+    [{:ueberauth, "~> 0.4"},
+     {:oauth2, "~> 0.8"},
      {:ex_doc, "~> 0.1", only: :dev},
      {:earmark, ">= 0.0.0", only: :dev},
      {:dogma, ">= 0.0.0", only: [:dev, :test]}]
