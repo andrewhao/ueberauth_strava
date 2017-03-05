@@ -18,7 +18,7 @@ defmodule Ueberauth.Strategy.Strava do
     scopes = conn.params["scope"] || option(conn, :default_scope)
     opts = [redirect_uri: callback_url(conn), scope: scopes]
 
-    opts = if conn.params["state"] do 
+    opts = if conn.params["state"] do
              Keyword.put(opts, :state, conn.params["state"])
            else
              opts
@@ -142,11 +142,11 @@ defmodule Ueberauth.Strategy.Strava do
   end
 
   defp option(conn, key) do
-    default = Dict.get(default_options, key)
+    default = Keyword.get(default_options(), key)
 
     conn
     |> options
-    |> Dict.get(key, default)
+    |> Keyword.get(key, default)
   end
   defp option(nil, conn, key), do: option(conn, key)
   defp option(value, _conn, _key), do: value
