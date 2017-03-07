@@ -3,7 +3,7 @@ defmodule Ueberauth.Strategy.Strava do
   Strava Strategy for Überauth.
   """
 
-  use Ueberauth.Strategy, default_scope: "view_private"
+  use Ueberauth.Strategy, default_scope: "public"
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
