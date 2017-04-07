@@ -3,9 +3,7 @@ defmodule Ueberauth.Strategy.Strava do
   Strava Strategy for Überauth.
   """
 
-  use Ueberauth.Strategy, default_scope: "public",
-                          uid_field: :id,
-                          oauth2_module: Ueberauth.Strategy.Strava.OAuth
+  use Ueberauth.Strategy, default_scope: "public"
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
@@ -24,8 +22,8 @@ defmodule Ueberauth.Strategy.Strava do
              opts
            end
 
-    module = option(conn, :oauth2_module)
-    redirect!(conn, apply(module, :authorize_url!, [opts]))
+    url = Ueberauth.Strategy.Strava.OAuth.authorize_url!(opts)
+    redirect!(conn, url)
   end
 
   @doc """
@@ -61,12 +59,10 @@ defmodule Ueberauth.Strategy.Strava do
   Fetches the uid field from the response.
   """
   def uid(conn) do
-    uid_field =
-      conn
-      |> option(:uid_field)
-      |> to_string
-
-    conn.private.strava_athlete[uid_field]
+    conn.private
+    |> Map.fetch!(:strava_athlete)
+    |> Map.fetch!("id")
+    |> to_string
   end
 
   @doc """
@@ -113,10 +109,6 @@ defmodule Ueberauth.Strategy.Strava do
     }
   end
 
-  defp fetch_image(uid) do
-    "http://graph.Strava.com/#{uid}/picture?type=square"
-  end
-
   defp fetch_athlete(conn, token) do
     conn = put_private(conn, :strava_token, token)
     path = "/api/v3/athlete"
@@ -131,35 +123,11 @@ defmodule Ueberauth.Strategy.Strava do
     end
   end
 
-  defp query_params(conn, :profile) do
-    %{"fields" => option(conn, :profile_fields)}
-  end
-  defp query_params(conn, :locale) do
-    case option(conn, :locale) do
-      nil -> %{}
-      locale -> %{"locale" => locale}
-    end
-  end
-
   defp option(conn, key) do
     default = Keyword.get(default_options(), key)
 
     conn
     |> options
     |> Keyword.get(key, default)
-  end
-  defp option(nil, conn, key), do: option(conn, key)
-  defp option(value, _conn, _key), do: value
-
-  defp maybe_replace_param(params, conn, name, config_key) do
-    if params[name] do
-      params
-    else
-      Map.put(
-        params,
-        name,
-        option(params[name], conn, config_key)
-      )
-    end
   end
 end
