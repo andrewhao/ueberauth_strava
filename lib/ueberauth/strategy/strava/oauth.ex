@@ -14,7 +14,7 @@ defmodule Ueberauth.Strategy.Strava.OAuth do
     strategy: __MODULE__,
     site: "https://www.strava.com/",
     authorize_url: "https://www.strava.com/oauth/authorize",
-    token_url: "https://www.strava.com/oauth/token",
+    token_url: "https://www.strava.com/oauth/token"
   ]
 
   @doc """
@@ -46,7 +46,7 @@ defmodule Ueberauth.Strategy.Strava.OAuth do
   end
 
   def get(token, url, headers \\ [], opts \\ []) do
-    client([token: token])
+    client(token: token)
     |> put_param("client_secret", client().client_secret)
     |> OAuth2.Client.get(url, headers, opts)
   end
@@ -71,8 +71,8 @@ defmodule Ueberauth.Strategy.Strava.OAuth do
 
   def get_token(client, params, headers) do
     client
+    |> put_param(:client_secret, client.client_secret)
     |> put_header("Accept", "application/json")
     |> OAuth2.Strategy.AuthCode.get_token(params, headers)
   end
-
 end
