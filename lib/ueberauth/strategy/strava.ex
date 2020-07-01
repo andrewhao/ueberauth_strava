@@ -16,11 +16,12 @@ defmodule Ueberauth.Strategy.Strava do
     scopes = conn.params["scope"] || option(conn, :default_scope)
     opts = [redirect_uri: callback_url(conn), scope: scopes]
 
-    opts = if conn.params["state"] do
-             Keyword.put(opts, :state, conn.params["state"])
-           else
-             opts
-           end
+    opts =
+      if conn.params["state"] do
+        Keyword.put(opts, :state, conn.params["state"])
+      else
+        opts
+      end
 
     url = Ueberauth.Strategy.Strava.OAuth.authorize_url!(opts)
     redirect!(conn, url)
@@ -31,15 +32,21 @@ defmodule Ueberauth.Strategy.Strava do
   """
   def handle_callback!(%Plug.Conn{params: %{"code" => code}} = conn) do
     opts = [redirect_uri: callback_url(conn)]
-    client = Ueberauth.Strategy.Strava.OAuth.get_token!([code: code], opts)
-    token = client.token
 
-    if token.access_token == nil do
-      err = token.other_params["error"]
-      desc = token.other_params["error_description"]
-      set_errors!(conn, [error(err, desc)])
-    else
-      fetch_athlete(conn, token)
+    try do
+      client = Ueberauth.Strategy.Strava.OAuth.get_token!([code: code], opts)
+      token = client.token
+
+      if token.access_token == nil do
+        err = token.other_params["error"]
+        desc = token.other_params["error_description"]
+        set_errors!(conn, [error(err, desc)])
+      else
+        fetch_athlete(conn, token)
+      end
+    rescue
+      OAuth2.Error ->
+        set_errors!(conn, [error("invalid_code", "The code has been used or has expired")])
     end
   end
 
@@ -92,7 +99,7 @@ defmodule Ueberauth.Strategy.Strava do
       first_name: athlete["firstname"],
       last_name: athlete["lastname"],
       email: athlete["email"],
-      image: athlete["profile"],
+      image: athlete["profile"]
     }
   end
 
@@ -112,12 +119,15 @@ defmodule Ueberauth.Strategy.Strava do
   defp fetch_athlete(conn, token) do
     conn = put_private(conn, :strava_token, token)
     path = "/api/v3/athlete"
+
     case Ueberauth.Strategy.Strava.OAuth.get(token, path) do
       {:ok, %OAuth2.Response{status_code: 401, body: _body}} ->
         set_errors!(conn, [error("token", "unauthorized")])
+
       {:ok, %OAuth2.Response{status_code: status_code, body: athlete}}
-        when status_code in 200..399 ->
+      when status_code in 200..399 ->
         put_private(conn, :strava_athlete, athlete)
+
       {:error, %OAuth2.Error{reason: reason}} ->
         set_errors!(conn, [error("OAuth2", reason)])
     end
