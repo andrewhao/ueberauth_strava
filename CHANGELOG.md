@@ -1,3 +1,11 @@
+# v0.4.0
+
+* Support for Ueberauth 0.4 (@vinniefranco)
+* Fixing issues with `get_token!` (@vinniefranco)
+* Default scope is now `public` (@tsubery)
+* Add :client_secret to get_token/3 params (@syamilmj)
+* Rescue Oauth2.Error to prevent server 500s (@syamilmj)
+
 # v 0.3.2
 
 * Fix support for auth_type
