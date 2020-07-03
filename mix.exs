@@ -1,7 +1,7 @@
 defmodule UeberauthStrava.Mixfile do
   use Mix.Project
 
-  @version "0.1.2"
+  @version "0.4.0"
   @url "https://github.com/andrewhao/ueberauth_strava"
 
   def project do
@@ -26,7 +26,7 @@ defmodule UeberauthStrava.Mixfile do
   defp deps do
     [{:ueberauth, "~> 0.4"},
      {:oauth2, "~> 0.8"},
-     {:ex_doc, "~> 0.1", only: :dev},
+     {:ex_doc, "~> 0.19", only: :dev},
      {:earmark, ">= 0.0.0", only: :dev},
      {:dogma, ">= 0.0.0", only: [:dev, :test]}]
   end

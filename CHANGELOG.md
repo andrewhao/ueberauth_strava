@@ -5,6 +5,7 @@
 * Default scope is now `public` (@tsubery)
 * Add :client_secret to get_token/3 params (@syamilmj)
 * Rescue Oauth2.Error to prevent server 500s (@syamilmj)
+* Update `ex_doc` version to make docs compile again (@andrewhao)
 
 # v 0.3.2
 
