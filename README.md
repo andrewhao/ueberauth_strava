@@ -82,7 +82,7 @@ Or with options:
 
     /auth/strava?scope=view_private,write
 
-By default the requested scope is "public". Scope can be configured either explicitly as a `scope` query value on the request path or in your configuration:
+By default the requested scope is "read". Scope can be configured either explicitly as a `scope` query value on the request path or in your configuration:
 
 ```elixir
 config :ueberauth, Ueberauth,
