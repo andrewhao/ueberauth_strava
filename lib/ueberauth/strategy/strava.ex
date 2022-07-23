@@ -3,7 +3,10 @@ defmodule Ueberauth.Strategy.Strava do
   Strava Strategy for Überauth.
   """
 
-  use Ueberauth.Strategy, default_scope: "public"
+  use Ueberauth.Strategy,
+    default_scope: "public",
+    send_redirect_uri: true,
+    oauth2_module: Ueberauth.Strategy.Strava.OAuth
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
@@ -13,18 +16,14 @@ defmodule Ueberauth.Strategy.Strava do
   Handles initial request for Strava authentication.
   """
   def handle_request!(conn) do
-    scopes = conn.params["scope"] || option(conn, :default_scope)
-    opts = [redirect_uri: callback_url(conn), scope: scopes]
-
     opts =
-      if conn.params["state"] do
-        Keyword.put(opts, :state, conn.params["state"])
-      else
-        opts
-      end
+      []
+      |> with_scopes(conn)
+      |> with_state_param(conn)
+      |> with_redirect_uri(conn)
 
-    url = Ueberauth.Strategy.Strava.OAuth.authorize_url!(opts)
-    redirect!(conn, url)
+    module = option(conn, :oauth2_module)
+    redirect!(conn, apply(module, :authorize_url!, [opts]))
   end
 
   @doc """
@@ -139,5 +138,19 @@ defmodule Ueberauth.Strategy.Strava do
     conn
     |> options
     |> Keyword.get(key, default)
+  end
+
+  defp with_scopes(opts, conn) do
+    scopes = conn.params["scope"] || option(conn, :default_scope)
+
+    opts |> Keyword.put(:scope, scopes)
+  end
+
+  defp with_redirect_uri(opts, conn) do
+    if option(conn, :send_redirect_uri) do
+      opts |> Keyword.put(:redirect_uri, callback_url(conn))
+    else
+      opts
+    end
   end
 end
